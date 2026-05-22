@@ -1,5 +1,5 @@
 # Archivo: main.py
-from config.database import crear_tabla_productos
+from config.database import crear_tablas, insertar_data_producto
 from modules.inventario import modulo_inventario
 from modules.ventas import modulo_ventas
 from modules.reportes import modulo_reportes
@@ -33,5 +33,6 @@ def menu_principal():
 
 
 if __name__ == "__main__":
-    crear_tabla_productos()
+    crear_tablas()
+    insertar_data_producto()
     menu_principal()

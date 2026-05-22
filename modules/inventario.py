@@ -25,17 +25,22 @@ def registrar_producto():
 
     while True:
         nombre = input("Ingrese nombre del producto: ").strip()
-        if nombre:
-            break
-        print("Dato inválido: el nombre no puede quedar vacío.")
+        if not nombre:
+            print("El nombre no puede quedar vacío.")
+            continue
+        if buscar_producto_por_nombre(nombre):
+            print("El producto ya existe.")
+            continue
+        break
 
     while True:
         valor_precio = input("Ingrese precio de venta: ").strip()
         try:
             precio = float(valor_precio)
-            if precio > 0:
-                break
-            print("Dato inválido: el precio debe ser mayor a 0.")
+            if precio <= 0:
+                print("Dato inválido: el precio debe ser mayor a 0.")
+                continue
+            break
         except ValueError:
             print("Dato inválido: ingrese un número válido para el precio.")
 
@@ -43,9 +48,10 @@ def registrar_producto():
         valor_stock = input("Ingrese stock inicial: ").strip()
         try:
             stock = int(valor_stock)
-            if stock >= 0:
-                break
-            print("Dato inválido: el stock debe ser mayor o igual a 0.")
+            if stock < 0:
+                print("El stock debe ser mayor o igual a 0.")
+                continue
+            break
         except ValueError:
             print("Dato inválido: ingrese un número entero válido para el stock.")
 
@@ -64,6 +70,15 @@ def insertar_producto(nombre, precio, stock):
     conexion.commit()
     conexion.close()
 
+def buscar_producto_por_nombre(nombre):
+    """Busca un producto por su nombre y devuelve sus detalles."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM productos WHERE nombre = ?", (nombre,))
+    producto = cursor.fetchone()
+    conexion.close()
+    return producto
+
 def listar_productos():
     """Devuelve una lista de todos los productos registrados en la base de datos."""
     conexion = conectar()
@@ -79,3 +94,31 @@ def listar_productos():
     else:
         for prod in productos:
             print(f"ID: {prod[0]}, Nombre: {prod[1]}, Precio: {prod[2]}, Stock: {prod[3]}")
+
+def actualizar_stock_producto(nombre):
+    """Actualiza el stock de un producto específico."""
+    producto = buscar_producto_por_nombre(nombre)
+    if not producto:
+        print("Producto no encontrado.")
+        return
+
+    while True:
+        valor_stock = input(f"Ingrese nuevo stock para '{nombre}': ").strip()
+        try:
+            nuevo_stock = int(valor_stock)
+            if nuevo_stock < 0:
+                print("El stock debe ser mayor o igual a 0.")
+                continue
+            break
+        except ValueError:
+            print("Dato inválido: ingrese un número entero válido para el stock.")
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "UPDATE productos SET stock = ? WHERE nombre = ?",
+        (nuevo_stock, nombre),
+    )
+    conexion.commit()
+    conexion.close()
+    print(f"Stock actualizado para '{nombre}'. Nuevo stock: {nuevo_stock}")
