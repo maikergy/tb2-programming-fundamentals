@@ -1,4 +1,3 @@
-# Archivo: main.py
 from config.database import crear_tablas, insertar_data_producto
 from modules.inventario import modulo_inventario
 from modules.ventas import modulo_ventas

@@ -34,6 +34,16 @@ def crear_tablas():
         )
         """
     )
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS empleados (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            cargo TEXT NOT NULL,
+            sueldo REAL NOT NULL
+        )
+        """
+    )
     conexion.commit()
     conexion.close()
 
@@ -156,3 +166,33 @@ def insertar_venta_y_actualizar_stock(producto_id, cantidad, total, fecha):
     )
     conexion.commit()
     conexion.close()
+
+# QUERYS NOMINA
+def insertar_empleado(nombre, cargo, sueldo):
+    """Inserta un nuevo empleado en la tabla empleados."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "INSERT INTO empleados (nombre, cargo, sueldo) VALUES (?, ?, ?)",
+        (nombre, cargo, sueldo),
+    )
+    conexion.commit()
+    conexion.close()
+
+def obtener_empleado_por_nombre(nombre):
+    """Busca un empleado por su nombre y devuelve sus detalles."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM empleados WHERE LOWER(nombre) = LOWER(?)", (nombre,))
+    empleado = cursor.fetchone()
+    conexion.close()
+    return empleado
+
+def obtener_empleados():
+    """Devuelve una lista de todos los empleados registrados en la base de datos."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM empleados")
+    empleados = cursor.fetchall()
+    conexion.close()
+    return empleados

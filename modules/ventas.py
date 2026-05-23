@@ -1,4 +1,3 @@
-# Archivo: modules/ventas.py
 from datetime import datetime
 from config.database import *
 

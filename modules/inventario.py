@@ -1,4 +1,3 @@
-# Archivo: modules/inventario.py
 from config.database import *
 
 def modulo_inventario():
