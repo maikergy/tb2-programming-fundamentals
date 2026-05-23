@@ -1,0 +1,22 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite database file
+eliordas.db
+
+# Virtual environments
+venv/
+.env/
+.env
+
+# macOS metadata
+.DS_Store
+
+# VS Code workspace settings
+.vscode/
+
+# Logs and temporary files
+*.log
+*.tmp
