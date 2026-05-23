@@ -5,14 +5,13 @@ from modules.ventas import modulo_ventas
 from modules.reportes import modulo_reportes
 from modules.nomina import modulo_nomina
 
-
 def menu_principal():
     """Muestra el menú principal interactivo."""
     while True:
         print("\n=== ELIORODAS - Menú Principal ===")
         print("1. Inventario")
         print("2. Ventas")
-        print("3. Reporte Diario")
+        print("3. Reportes")
         print("4. Nómina")
         print("5. Salir")
         opcion = input("Seleccione una opción: ").strip()

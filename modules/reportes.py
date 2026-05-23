@@ -1,37 +1,130 @@
-# Archivo: modules/reportes.py
-from datetime import datetime
-from config.database import conectar
+from config.database import *
 
+# INTERFAZ DE MODULO REPORTES:
 def modulo_reportes():
-    """Muestra el submenú del módulo de reportes."""
+
     while True:
-        print("\n--- Módulo Reporte Diario ---")
-        print("1. Mostrar Reporte Diario")
-        print("2. Volver al Menú Principal")
-        opcion = input("Seleccione una opción: ").strip()
+        print("\n===== MODULO REPORTES =====\n")
+        print("1. Productos con stock critico")
+        print("2. Producto mas vendido")
+        print("3. Productos sin ventas")
+        print("4. Ganancias totales")
+        print("5. Volver")
 
-        if opcion == "1":
-            generar_reporte_diario()
-        elif opcion == "2":
+        opcion = input("\nElija una opcion: ")
+
+        # VALIDACION DE DATO INGRESADO:
+        if not opcion.isdigit():
+            print("Error: ingrese un numero valido.")
+            continue
+
+        opcion = int(opcion)
+
+        if opcion == 1:
+            reporte_stock_critico()
+
+        elif opcion == 2:
+            reporte_producto_mas_vendido()
+
+        elif opcion == 3:
+            reporte_productos_sin_ventas()
+
+        elif opcion == 4:
+            reporte_ganancias_totales()
+
+        elif opcion == 5:
             return
+
         else:
-            print("Opción inválida. Intente de nuevo.")
+            print("Opcion invalida.")
 
-def generar_reporte_diario():
-    """Genera el reporte de ventas del día actual."""
-    hoy = datetime.now().strftime("%Y-%m-%d")
-    conexion = conectar()
-    cursor = conexion.cursor()
-    cursor.execute(
-        "SELECT COUNT(*), COALESCE(SUM(total), 0), COALESCE(SUM(cantidad), 0)"
-        " FROM ventas WHERE fecha = ?",
-        (hoy,),
-    )
-    total_ventas, monto_total, productos_vendidos = cursor.fetchone()
-    conexion.close()
 
-    print("\n--- Reporte Diario ---")
-    print(f"Fecha: {hoy}")
-    print(f"Ventas registradas: {total_ventas}")
-    print(f"Total facturado: {monto_total}")
-    print(f"Productos vendidos: {productos_vendidos}")
+# REPORTE DE STOCK CRITICO:
+def reporte_stock_critico():
+    productos = obtener_productos()
+
+    minimo = 10
+    encontrados = False
+
+    print("\n===== PRODUCTOS CON STOCK CRITICO =====\n")
+
+    for producto in productos:
+
+        # producto[3] = stock
+
+        if producto[3] <= minimo:
+
+            print(f"Producto: {producto[1]}, Stock: {producto[3]}")
+
+            encontrados = True
+
+    if not encontrados:
+        print("No hay productos con stock critico.")
+
+# PRODUCTO MAS VENDIDO:
+def reporte_producto_mas_vendido():
+    ventas = obtener_ventas()
+
+    print("\n===== PRODUCTO MAS VENDIDO =====\n")
+
+    mayor_cantidad = 0
+    producto_mas_vendido = ""
+
+    for venta in ventas:
+
+        #  venta[2] = cantidad vendida
+        if venta[1] > mayor_cantidad:
+
+            mayor_cantidad = venta[1]
+            producto_mas_vendido = venta[0]
+
+    if mayor_cantidad == 0:
+        print("No hay ventas registradas.")
+    else:
+        print(f"Producto mas vendido: {producto_mas_vendido}, Cantidad vendida: {mayor_cantidad}")
+
+# PRODUCTOS SIN VENTAS:
+def reporte_productos_sin_ventas():
+    productos = obtener_productos()
+    ventas = obtener_ventas()
+
+    print("\n===== PRODUCTOS SIN VENTAS =====\n")
+
+    encontrados = False
+
+    for producto in productos:
+
+        vendido = False
+
+        for venta in ventas:
+
+            # producto[1] = nombre
+            # venta[1] = nombre_producto
+
+            if producto[1] == venta[1]:
+
+                vendido = True
+
+        if not vendido:
+
+            print(f"Producto: {producto[1]}, Stock: {producto[3]}")
+
+            encontrados = True
+
+    if not encontrados:
+        print("Todos los productos tienen ventas.")
+
+# GANANCIAS TOTALES:
+def reporte_ganancias_totales():
+    ventas = obtener_ventas()
+
+    print("\n===== GANANCIAS TOTALES =====\n")
+
+    ganancias_totales = 0
+
+    for venta in ventas:
+
+        # venta[3] = total
+        ganancias_totales += venta[2]
+
+    print(f"Ganancias totales: S/. {ganancias_totales:.2f}")
