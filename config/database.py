@@ -66,3 +66,93 @@ def insertar_data_producto():
     ])
     conexion.commit()
     conexion.close()
+
+# QUERYS PRODUCTOS
+def insertar_producto(nombre, precio, stock):
+    """Inserta un nuevo producto en la tabla productos."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "INSERT INTO productos (nombre, precio, stock) VALUES (?, ?, ?)",
+        (nombre, precio, stock),
+    )
+    conexion.commit()
+    conexion.close()
+
+def actualizar_stock_producto(id, nuevo_stock):
+    """Actualiza el stock de un producto específico."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "UPDATE productos SET stock = ? WHERE id = ?",
+        (nuevo_stock, id),
+    )
+    conexion.commit()
+    conexion.close()
+
+def obtener_productos():
+    """Devuelve una lista de todos los productos registrados en la base de datos."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM productos")
+    productos = cursor.fetchall()
+    conexion.close()
+    return productos
+
+def obtener_producto_por_nombre(nombre):
+    """Busca un producto por su nombre y devuelve sus detalles."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM productos WHERE nombre = ?", (nombre,))
+    producto = cursor.fetchone()
+    conexion.close()
+    return producto
+
+def obtener_producto_por_id(producto_id):
+    """Busca un producto por su ID."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT id, nombre, precio, stock FROM productos WHERE id = ?", (producto_id,))
+    producto = cursor.fetchone()
+    conexion.close()
+    return producto
+
+def obtener_productos_disponibles():
+    """Lista los productos con stock mayor a cero."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT id, nombre, precio, stock FROM productos WHERE stock > 0")
+    productos = cursor.fetchall()
+    conexion.close()
+    return productos
+
+
+# QUERYS VENTAS
+def obtener_ventas():
+    """Muestra el historial de ventas guardado en la base de datos."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "SELECT p.nombre, v.cantidad, v.total, v.fecha"
+        " FROM ventas v"
+        " JOIN productos p ON v.producto_id = p.id"
+        " ORDER BY v.fecha DESC, v.id DESC"
+    )
+    ventas = cursor.fetchall()
+    conexion.close()
+    return ventas
+
+def insertar_venta_y_actualizar_stock(producto_id, cantidad, total, fecha):
+    """Inserta una nueva venta en la tabla ventas."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "INSERT INTO ventas (producto_id, cantidad, total, fecha) VALUES (?, ?, ?, ?)",
+        (producto_id, cantidad, total, fecha),
+    )
+    cursor.execute(
+        "UPDATE productos SET stock = stock - ? WHERE id = ?",
+        (cantidad, producto_id),
+    )
+    conexion.commit()
+    conexion.close()

@@ -1,6 +1,6 @@
 # Archivo: modules/ventas.py
 from datetime import datetime
-from config.database import conectar
+from config.database import *
 
 def modulo_ventas():
     """Muestra el submenú del módulo de ventas."""
@@ -22,16 +22,7 @@ def modulo_ventas():
 
 def listar_ventas():
     """Muestra el historial de ventas guardado en la base de datos."""
-    conexion = conectar()
-    cursor = conexion.cursor()
-    cursor.execute(
-        "SELECT v.id, p.nombre, v.cantidad, v.total, v.fecha"
-        " FROM ventas v"
-        " JOIN productos p ON v.producto_id = p.id"
-        " ORDER BY v.fecha DESC, v.id DESC"
-    )
-    ventas = cursor.fetchall()
-    conexion.close()
+    ventas = obtener_ventas()
 
     print("\n--- Historial de Ventas ---")
     if not ventas:
@@ -39,12 +30,12 @@ def listar_ventas():
         return
 
     for venta in ventas:
-        print(f"ID: {venta[0]}, Producto: {venta[1]}, Cantidad: {venta[2]}, Total: {venta[3]}, Fecha: {venta[4]}")
+        print(f"Producto: {venta[0]}, Cantidad: {venta[1]}, Total: {venta[2]}, Fecha: {venta[3]}")
 
 def registrar_venta():
     """Registra una venta, actualiza stock y guarda el movimiento."""
     print("\n--- Registrar Venta ---")
-    productos = listar_productos_disponibles()
+    productos = obtener_productos_disponibles()
 
     if not productos:
         print("No hay productos con stock disponible.")
@@ -83,39 +74,10 @@ def registrar_venta():
         except ValueError:
             print("Dato inválido: ingrese un número entero válido para la cantidad.")
 
-    total = round(precio * cantidad, 2)
+    total = precio * cantidad
     fecha = datetime.now().strftime("%Y-%m-%d")
 
-    conexion = conectar()
-    cursor = conexion.cursor()
-    cursor.execute(
-        "INSERT INTO ventas (producto_id, cantidad, total, fecha) VALUES (?, ?, ?, ?)",
-        (producto_id, cantidad, total, fecha),
-    )
-    cursor.execute(
-        "UPDATE productos SET stock = ? WHERE id = ?",
-        (stock - cantidad, producto_id),
-    )
-    conexion.commit()
-    conexion.close()
+    insertar_venta_y_actualizar_stock(producto_id, cantidad, total, fecha)
 
     print("\nVenta registrada con éxito.")
-    print(f"Producto: {nombre}, Cantidad: {cantidad}, Total: {total}")
-
-def obtener_producto_por_id(producto_id):
-    """Busca un producto por su ID."""
-    conexion = conectar()
-    cursor = conexion.cursor()
-    cursor.execute("SELECT id, nombre, precio, stock FROM productos WHERE id = ?", (producto_id,))
-    producto = cursor.fetchone()
-    conexion.close()
-    return producto
-
-def listar_productos_disponibles():
-    """Lista los productos con stock mayor a cero."""
-    conexion = conectar()
-    cursor = conexion.cursor()
-    cursor.execute("SELECT id, nombre, precio, stock FROM productos WHERE stock > 0")
-    productos = cursor.fetchall()
-    conexion.close()
-    return productos
+    print(f"Producto: {nombre}, Cantidad: {cantidad}, Total: {total:.2f}")

@@ -2,6 +2,20 @@
 from datetime import datetime
 from config.database import conectar
 
+def modulo_reportes():
+    """Muestra el submenú del módulo de reportes."""
+    while True:
+        print("\n--- Módulo Reporte Diario ---")
+        print("1. Mostrar Reporte Diario")
+        print("2. Volver al Menú Principal")
+        opcion = input("Seleccione una opción: ").strip()
+
+        if opcion == "1":
+            generar_reporte_diario()
+        elif opcion == "2":
+            return
+        else:
+            print("Opción inválida. Intente de nuevo.")
 
 def generar_reporte_diario():
     """Genera el reporte de ventas del día actual."""
@@ -21,19 +35,3 @@ def generar_reporte_diario():
     print(f"Ventas registradas: {total_ventas}")
     print(f"Total facturado: {monto_total}")
     print(f"Productos vendidos: {productos_vendidos}")
-
-
-def modulo_reportes():
-    """Muestra el submenú del módulo de reportes."""
-    while True:
-        print("\n--- Módulo Reporte Diario ---")
-        print("1. Mostrar Reporte Diario")
-        print("2. Volver al Menú Principal")
-        opcion = input("Seleccione una opción: ").strip()
-
-        if opcion == "1":
-            generar_reporte_diario()
-        elif opcion == "2":
-            return
-        else:
-            print("Opción inválida. Intente de nuevo.")
